@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/dave/jennifer/jen"
-	"go.elara.ws/go-lemmy/cmd/gen/parser"
+	"github.com/rystaf/go-lemmy/cmd/gen/parser"
 )
 
 type StructGenerator struct {

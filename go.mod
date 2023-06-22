@@ -1,4 +1,4 @@
-module go.elara.ws/go-lemmy
+module github.com/rystaf/go-lemmy
 
 go 1.19
 
