@@ -151,7 +151,7 @@ func resError(res *http.Response, lr types.LemmyResponse) error {
 // authentication token, then returns the
 // updated struct
 func (c *Client) setAuth(data any) any {
-	if data == nil {
+	if data == nil || c.Token == "" {
 		return data
 	}
 
