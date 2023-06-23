@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -118,12 +119,15 @@ func (c *Client) getReq(ctx context.Context, method string, path string, data, r
 		return nil, err
 	}
 	defer res.Body.Close()
-
-	err = json.NewDecoder(res.Body).Decode(resp)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(body, &resp)
 	if err == io.EOF {
 		return res, nil
 	} else if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("response parse error: '%w' body: %s", err, string(body))
 	}
 
 	return res, nil
