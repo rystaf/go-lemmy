@@ -4,8 +4,9 @@
 package types
 
 type Login struct {
-	UsernameOrEmail string `json:"username_or_email" url:"username_or_email,omitempty"`
-	Password        string `json:"password" url:"password,omitempty"`
+	UsernameOrEmail string           `json:"username_or_email" url:"username_or_email,omitempty"`
+	Password        string           `json:"password" url:"password,omitempty"`
+	Totp2faToken    Optional[string] `json:"totp_2fa_token" url:"totp_2fa_token,omitempty"`
 }
 type Register struct {
 	Username       string           `json:"username" url:"username,omitempty"`
@@ -32,26 +33,28 @@ type CaptchaResponse struct {
 	LemmyResponse
 }
 type SaveUserSettings struct {
-	ShowNSFW                 Optional[bool]   `json:"show_nsfw" url:"show_nsfw,omitempty"`
-	ShowScores               Optional[bool]   `json:"show_scores" url:"show_scores,omitempty"`
-	Theme                    Optional[string] `json:"theme" url:"theme,omitempty"`
-	DefaultSortType          Optional[int16]  `json:"default_sort_type" url:"default_sort_type,omitempty"`
-	DefaultListingType       Optional[int16]  `json:"default_listing_type" url:"default_listing_type,omitempty"`
-	InterfaceLanguage        Optional[string] `json:"interface_language" url:"interface_language,omitempty"`
-	Avatar                   Optional[string] `json:"avatar" url:"avatar,omitempty"`
-	Banner                   Optional[string] `json:"banner" url:"banner,omitempty"`
-	DisplayName              Optional[string] `json:"display_name" url:"display_name,omitempty"`
-	Email                    Optional[string] `json:"email" url:"email,omitempty"`
-	Bio                      Optional[string] `json:"bio" url:"bio,omitempty"`
-	MatrixUserID             Optional[string] `json:"matrix_user_id" url:"matrix_user_id,omitempty"`
-	ShowAvatars              Optional[bool]   `json:"show_avatars" url:"show_avatars,omitempty"`
-	SendNotificationsToEmail Optional[bool]   `json:"send_notifications_to_email" url:"send_notifications_to_email,omitempty"`
-	BotAccount               Optional[bool]   `json:"bot_account" url:"bot_account,omitempty"`
-	ShowBotAccounts          Optional[bool]   `json:"show_bot_accounts" url:"show_bot_accounts,omitempty"`
-	ShowReadPosts            Optional[bool]   `json:"show_read_posts" url:"show_read_posts,omitempty"`
-	ShowNewPostNotifs        Optional[bool]   `json:"show_new_post_notifs" url:"show_new_post_notifs,omitempty"`
-	DiscussionLanguages      Optional[[]int]  `json:"discussion_languages" url:"discussion_languages,omitempty"`
-	Auth                     string           `json:"auth" url:"auth,omitempty"`
+	ShowNSFW                 Optional[bool]        `json:"show_nsfw" url:"show_nsfw,omitempty"`
+	ShowScores               Optional[bool]        `json:"show_scores" url:"show_scores,omitempty"`
+	Theme                    Optional[string]      `json:"theme" url:"theme,omitempty"`
+	DefaultSortType          Optional[SortType]    `json:"default_sort_type" url:"default_sort_type,omitempty"`
+	DefaultListingType       Optional[ListingType] `json:"default_listing_type" url:"default_listing_type,omitempty"`
+	InterfaceLanguage        Optional[string]      `json:"interface_language" url:"interface_language,omitempty"`
+	Avatar                   Optional[string]      `json:"avatar" url:"avatar,omitempty"`
+	Banner                   Optional[string]      `json:"banner" url:"banner,omitempty"`
+	DisplayName              Optional[string]      `json:"display_name" url:"display_name,omitempty"`
+	Email                    Optional[string]      `json:"email" url:"email,omitempty"`
+	Bio                      Optional[string]      `json:"bio" url:"bio,omitempty"`
+	MatrixUserID             Optional[string]      `json:"matrix_user_id" url:"matrix_user_id,omitempty"`
+	ShowAvatars              Optional[bool]        `json:"show_avatars" url:"show_avatars,omitempty"`
+	SendNotificationsToEmail Optional[bool]        `json:"send_notifications_to_email" url:"send_notifications_to_email,omitempty"`
+	BotAccount               Optional[bool]        `json:"bot_account" url:"bot_account,omitempty"`
+	ShowBotAccounts          Optional[bool]        `json:"show_bot_accounts" url:"show_bot_accounts,omitempty"`
+	ShowReadPosts            Optional[bool]        `json:"show_read_posts" url:"show_read_posts,omitempty"`
+	ShowNewPostNotifs        Optional[bool]        `json:"show_new_post_notifs" url:"show_new_post_notifs,omitempty"`
+	DiscussionLanguages      Optional[[]int]       `json:"discussion_languages" url:"discussion_languages,omitempty"`
+	GenerateTotp2fa          Optional[bool]        `json:"generate_totp_2fa" url:"generate_totp_2fa,omitempty"`
+	Auth                     string                `json:"auth" url:"auth,omitempty"`
+	OpenLinksInNewTab        Optional[bool]        `json:"open_links_in_new_tab" url:"open_links_in_new_tab,omitempty"`
 }
 type ChangePassword struct {
 	NewPassword       string `json:"new_password" url:"new_password,omitempty"`

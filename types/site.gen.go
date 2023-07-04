@@ -175,7 +175,7 @@ type GetFederatedInstancesResponse struct {
 	LemmyResponse
 }
 type MyUserInfo struct {
-	LocalUserView       LocalUserSettingsView    `json:"local_user_view" url:"local_user_view,omitempty"`
+	LocalUserView       LocalUserView            `json:"local_user_view" url:"local_user_view,omitempty"`
 	Follows             []CommunityFollowerView  `json:"follows" url:"follows,omitempty"`
 	Moderates           []CommunityModeratorView `json:"moderates" url:"moderates,omitempty"`
 	CommunityBlocks     []CommunityBlockView     `json:"community_blocks" url:"community_blocks,omitempty"`
