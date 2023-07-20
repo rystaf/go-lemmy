@@ -17,8 +17,6 @@ type LocalUser struct {
 	SendNotificationsToEmail bool             `json:"send_notifications_to_email" url:"send_notifications_to_email,omitempty"`
 	ValidatorTime            LemmyTime        `json:"validator_time" url:"validator_time,omitempty"`
 	ShowScores               bool             `json:"show_scores" url:"show_scores,omitempty"`
-}
-type LocalUserSettings struct {
 	ShowBotAccounts          bool             `json:"show_bot_accounts" url:"show_bot_accounts,omitempty"`
 	ShowReadPosts            bool             `json:"show_read_posts" url:"show_read_posts,omitempty"`
 	ShowNewPostNotifs        bool             `json:"show_new_post_notifs" url:"show_new_post_notifs,omitempty"`
