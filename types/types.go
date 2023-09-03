@@ -46,7 +46,10 @@ func (lt *LemmyTime) UnmarshalJSON(b []byte) error {
 
 	t, err := time.Parse("2006-01-02T15:04:05", timeStr)
 	if err != nil {
-		return err
+		t, err = time.Parse(time.RFC3339, timeStr)
+		if err != nil {
+			return err
+		}
 	}
 
 	lt.Time = t
