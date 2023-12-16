@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
 
 	"github.com/google/go-querystring/query"
-	"github.com/rystaf/go-lemmy/types"
+	"go.elara.ws/go-lemmy/types"
 )
 
 // Client is a client for Lemmy's HTTP API
@@ -119,15 +118,12 @@ func (c *Client) getReq(ctx context.Context, method string, path string, data, r
 		return nil, err
 	}
 	defer res.Body.Close()
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-	err = json.Unmarshal(body, &resp)
+
+	err = json.NewDecoder(res.Body).Decode(resp)
 	if err == io.EOF {
 		return res, nil
 	} else if err != nil {
-		return nil, fmt.Errorf("response parse error: '%w' body: %s", err, string(body))
+		return nil, err
 	}
 
 	return res, nil
@@ -155,7 +151,7 @@ func resError(res *http.Response, lr types.LemmyResponse) error {
 // authentication token, then returns the
 // updated struct
 func (c *Client) setAuth(data any) any {
-	if data == nil || c.Token == "" {
+	if data == nil {
 		return data
 	}
 

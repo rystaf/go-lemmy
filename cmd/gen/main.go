@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rystaf/go-lemmy/cmd/gen/generator"
-	"github.com/rystaf/go-lemmy/cmd/gen/parser"
+	"go.elara.ws/go-lemmy/cmd/gen/generator"
+	"go.elara.ws/go-lemmy/cmd/gen/parser"
 	"go.elara.ws/logger"
 	"go.elara.ws/logger/log"
 )

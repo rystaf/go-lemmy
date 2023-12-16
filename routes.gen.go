@@ -5,7 +5,7 @@ package lemmy
 
 import (
 	"context"
-	types "github.com/rystaf/go-lemmy/types"
+	types "go.elara.ws/go-lemmy/types"
 )
 
 func (c *Client) Site(ctx context.Context, data types.GetSite) (*types.GetSiteResponse, error) {

@@ -32,6 +32,11 @@ type LocalUserView struct {
 	Person    Person           `json:"person" url:"person,omitempty"`
 	Counts    PersonAggregates `json:"counts" url:"counts,omitempty"`
 }
+type LocalUserSettingsView struct {
+	LocalUser LocalUserSettings `json:"local_user" url:"local_user,omitempty"`
+	Person    PersonSafe        `json:"person" url:"person,omitempty"`
+	Counts    PersonAggregates  `json:"counts" url:"counts,omitempty"`
+}
 type PostReportView struct {
 	PostReport                 PostReport           `json:"post_report" url:"post_report,omitempty"`
 	Post                       Post                 `json:"post" url:"post,omitempty"`
@@ -70,7 +75,7 @@ type PrivateMessageReportView struct {
 }
 type RegistrationApplicationView struct {
 	RegistrationApplication RegistrationApplication `json:"registration_application" url:"registration_application,omitempty"`
-	CreatorLocalUser        LocalUser       `json:"creator_local_user" url:"creator_local_user,omitempty"`
+	CreatorLocalUser        LocalUserSettings       `json:"creator_local_user" url:"creator_local_user,omitempty"`
 	Creator                 PersonSafe              `json:"creator" url:"creator,omitempty"`
 	Admin                   Optional[PersonSafe]    `json:"admin" url:"admin,omitempty"`
 }
