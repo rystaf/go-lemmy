@@ -4,14 +4,17 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-	"reflect"
 
 	"github.com/google/go-querystring/query"
-	"go.elara.ws/go-lemmy/types"
 )
+
+// ErrNoToken is an error returned by ClientLogin if the server sends a null or empty token
+var ErrNoToken = errors.New("the server didn't provide a token value in its response")
 
 // Client is a client for Lemmy's HTTP API
 type Client struct {
@@ -32,27 +35,30 @@ func NewWithClient(baseURL string, client *http.Client) (*Client, error) {
 		return nil, err
 	}
 	u = u.JoinPath("/api/v3")
-
 	return &Client{baseURL: u, client: client}, nil
 }
 
-// ClientLogin logs in to Lemmy by sending an HTTP request to the
-// login endpoint. It stores the returned token in the client
-// for future use.
-func (c *Client) ClientLogin(ctx context.Context, l types.Login) error {
-	lr, err := c.Login(ctx, l)
+// ClientLogin logs in to Lemmy by calling the login endpoint, and
+// stores the returned token in the Token field for use in future requests.
+//
+// The Token field can be set manually if you'd like to persist the
+// token somewhere.
+func (c *Client) ClientLogin(ctx context.Context, data Login) error {
+	lr, err := c.Login(ctx, data)
 	if err != nil {
 		return err
 	}
 
-	c.Token = lr.JWT.MustValue()
+	token, ok := lr.JWT.Value()
+	if !ok || token == "" {
+		return ErrNoToken
+	}
+	c.Token = token
 	return nil
 }
 
 // req makes a request to the server
 func (c *Client) req(ctx context.Context, method string, path string, data, resp any) (*http.Response, error) {
-	data = c.setAuth(data)
-
 	var r io.Reader
 	if data != nil {
 		jsonData, err := json.Marshal(data)
@@ -74,6 +80,10 @@ func (c *Client) req(ctx context.Context, method string, path string, data, resp
 
 	req.Header.Add("Content-Type", "application/json")
 
+	if c.Token != "" {
+		req.Header.Add("Authorization", "Bearer "+c.Token)
+	}
+
 	res, err := c.client.Do(req)
 	if err != nil {
 		return nil, err
@@ -91,17 +101,17 @@ func (c *Client) req(ctx context.Context, method string, path string, data, resp
 }
 
 // getReq makes a get request to the Lemmy server.
-// It is separate from req() because it uses query
+// It's separate from req() because it uses query
 // parameters rather than a JSON request body.
 func (c *Client) getReq(ctx context.Context, method string, path string, data, resp any) (*http.Response, error) {
-	data = c.setAuth(data)
-
 	getURL := c.baseURL.JoinPath(path)
-	vals, err := query.Values(data)
-	if err != nil {
-		return nil, err
+	if data != nil {
+		vals, err := query.Values(data)
+		if err != nil {
+			return nil, err
+		}
+		getURL.RawQuery = vals.Encode()
 	}
-	getURL.RawQuery = vals.Encode()
 
 	req, err := http.NewRequestWithContext(
 		ctx,
@@ -111,6 +121,10 @@ func (c *Client) getReq(ctx context.Context, method string, path string, data, r
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	if c.Token != "" {
+		req.Header.Add("Authorization", "Bearer "+c.Token)
 	}
 
 	res, err := c.client.Do(req)
@@ -129,50 +143,39 @@ func (c *Client) getReq(ctx context.Context, method string, path string, data, r
 	return res, nil
 }
 
-// resError returns an error if the given response is an error
-func resError(res *http.Response, lr types.LemmyResponse) error {
-	if lr.Error.IsValid() {
-		return types.LemmyError{
+// Error represents an error returned by the Lemmy API
+type Error struct {
+	ErrStr string
+	Code   int
+}
+
+func (le Error) Error() string {
+	if le.ErrStr != "" {
+		return fmt.Sprintf("%d %s: %s", le.Code, http.StatusText(le.Code), le.ErrStr)
+	} else {
+		return fmt.Sprintf("%d %s", le.Code, http.StatusText(le.Code))
+	}
+}
+
+// emptyResponse is a response without any fields.
+// It has an Error field to capture any errors.
+type emptyResponse struct {
+	Error Optional[string] `json:"error"`
+}
+
+// resError checks if the response contains an error, and if so, returns
+// a Go error representing it.
+func resError(res *http.Response, err Optional[string]) error {
+	if errstr, ok := err.Value(); ok {
+		return Error{
 			Code:   res.StatusCode,
-			ErrStr: lr.Error.MustValue(),
+			ErrStr: errstr,
 		}
 	} else if res.StatusCode != http.StatusOK {
-		return types.HTTPError{
+		return Error{
 			Code: res.StatusCode,
 		}
 	} else {
 		return nil
 	}
-}
-
-// setAuth uses reflection to automatically
-// set struct fields called Auth of type
-// string or types.Optional[string] to the
-// authentication token, then returns the
-// updated struct
-func (c *Client) setAuth(data any) any {
-	if data == nil {
-		return data
-	}
-
-	val := reflect.New(reflect.TypeOf(data))
-	val.Elem().Set(reflect.ValueOf(data))
-
-	authField := val.Elem().FieldByName("Auth")
-	if !authField.IsValid() {
-		return data
-	}
-
-	switch authField.Type().String() {
-	case "string":
-		authField.SetString(c.Token)
-	case "types.Optional[string]":
-		setMtd := authField.MethodByName("Set")
-		out := setMtd.Call([]reflect.Value{reflect.ValueOf(c.Token)})
-		authField.Set(out[0])
-	default:
-		return data
-	}
-
-	return val.Elem().Interface()
 }
