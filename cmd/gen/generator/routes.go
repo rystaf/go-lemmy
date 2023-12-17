@@ -66,7 +66,7 @@ func (r *RoutesGenerator) Generate(routes []extractor.Route) error {
 				g.Lit(r.Method)
 				g.Lit(r.Path)
 				g.Add(data)
-				
+
 				if returnName == "map[string]any" {
 					g.Op("&").Id("resData")
 				} else {
@@ -86,7 +86,7 @@ func (r *RoutesGenerator) Generate(routes []extractor.Route) error {
 			} else {
 				g.Err().Op("=").Id("resError").Params(jen.Id("res"), jen.Id("resData").Dot("Error"))
 			}
-			
+
 			g.If(jen.Err().Op("!=").Nil()).BlockFunc(func(g *jen.Group) {
 				if returnName == "emptyResponse" {
 					g.Return(jen.Err())

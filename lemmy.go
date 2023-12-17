@@ -65,6 +65,15 @@ func (c *Client) req(ctx context.Context, method string, path string, data, resp
 		if err != nil {
 			return nil, err
 		}
+		if c.Token != "" {
+			var x map[string]interface{}
+			json.Unmarshal(jsonData, &x)
+			x["auth"] = c.Token
+			jsonData, err = json.Marshal(x)
+			if err != nil {
+				return nil, err
+			}
+		}
 		r = bytes.NewReader(jsonData)
 	}
 
@@ -125,6 +134,9 @@ func (c *Client) getReq(ctx context.Context, method string, path string, data, r
 
 	if c.Token != "" {
 		req.Header.Add("Authorization", "Bearer "+c.Token)
+		q := req.URL.Query()
+		q.Add("auth", c.Token)
+		req.URL.RawQuery = q.Encode()
 	}
 
 	res, err := c.client.Do(req)
