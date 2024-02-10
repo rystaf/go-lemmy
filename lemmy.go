@@ -60,22 +60,22 @@ func (c *Client) ClientLogin(ctx context.Context, data Login) error {
 // req makes a request to the server
 func (c *Client) req(ctx context.Context, method string, path string, data, resp any) (*http.Response, error) {
 	var r io.Reader
+	dataBlob := make(map[string]interface{})
 	if data != nil {
 		jsonData, err := json.Marshal(data)
 		if err != nil {
 			return nil, err
 		}
-		if c.Token != "" {
-			var x map[string]interface{}
-			json.Unmarshal(jsonData, &x)
-			x["auth"] = c.Token
-			jsonData, err = json.Marshal(x)
-			if err != nil {
-				return nil, err
-			}
-		}
-		r = bytes.NewReader(jsonData)
+		json.Unmarshal(jsonData, &dataBlob)
 	}
+	if c.Token != "" {
+		dataBlob["auth"] = c.Token
+	}
+	jsonData, err := json.Marshal(dataBlob)
+	if err != nil {
+		return nil, err
+	}
+	r = bytes.NewReader(jsonData)
 
 	req, err := http.NewRequestWithContext(
 		ctx,
